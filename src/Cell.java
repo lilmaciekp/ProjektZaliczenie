@@ -1,8 +1,11 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Cell {
     private int x;
     private int y;
     private Fish fish;
-    public Plankton plankton;
+    private Plankton plankton;
 
     public Cell(int x, int y) {
         this.x = x;
@@ -10,7 +13,25 @@ public class Cell {
         this.fish = null;
         this.plankton = null;
     }
-
+    public List<Cell> neigbourCell(Cell cell,Grid grid) {
+        List<Cell> NeigbourCells = new ArrayList<>();
+        int x = cell.getX();
+        int y = cell.getY();
+        for (int i = -3; i <= 3; i++) {
+            for (int j = -3; j <= 3; j++) {
+                if (i == 0 && j == 0) {
+                    continue;
+                }
+                int newX = x + i;
+                int newY = y + j;
+                Cell neighbor = grid.getCell(newX, newY);
+                if (neighbor != null) {
+                    NeigbourCells.add(neighbor);
+                }
+            }
+        }
+        return NeigbourCells;
+    }
     public boolean isEmpty() {
         return fish == null;
     }
@@ -20,17 +41,8 @@ public class Cell {
     public void setFish(Fish fish){
         this.fish = fish;
     }
-    public boolean containsHerbivorousFish(){
-        return fish instanceof HerbivorousFish;
-    }
     public Plankton getPlankton(){
         return plankton;
-    }
-    public HerbivorousFish getHerbivorousFish(){
-        if (fish instanceof HerbivorousFish) {
-            return (HerbivorousFish) fish;
-        }
-        return null;
     }
     public void setPlankton(Plankton plankton) {
         this.plankton = plankton;
@@ -41,4 +53,5 @@ public class Cell {
     public int getY(){
         return y;
     }
+
 }

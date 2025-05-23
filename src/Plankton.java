@@ -4,18 +4,22 @@ public class Plankton {
 
     public Plankton(int maxEnergy) {
         this.maxEnergy = maxEnergy;
-        this.energy = maxEnergy;
+        this.energy = 1;
     }
     public void regenerate(){
         if(energy < maxEnergy){
             energy++;
         }
     }
-    public boolean isDepleated(){
+    public boolean isDepleted(){
         return energy <=0;
     }
     public void consume(int amount){
-        energy = Math.max(0, energy - amount);
+        if(amount < energy){
+            energy -= amount;
+        }else{
+            energy = 0;
+        }
     }
     public int getEnergy(){
         return energy;
