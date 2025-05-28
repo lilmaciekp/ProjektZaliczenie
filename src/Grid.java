@@ -38,17 +38,26 @@ public class Grid {
     }
 
     public void placeFish(Fish fish) {
-        cells[fish.getX()][fish.getY()].setFish(fish);
+        Cell cell = getCell(fish.getX(), fish.getY());
+        if (cell != null && cell.isEmpty()) {
+            cell.setFish(fish);
+        }
     }
 
     public void moveFish() {
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                Cell cell = cells[i][j];
-                if (!cell.isEmpty()) {
-                    Fish fish = cell.getFish();
-                    fish.move(this);
-                }
+        List<Fish> allFish = getFishList();
+
+        for (int i = 0; i < allFish.size(); i++) {
+            Fish fish = allFish.get(i);
+            if (fish instanceof CarnivorousFish && !fish.isDead()) {
+                fish.move(this);
+            }
+        }
+
+        for (int i = 0; i < allFish.size(); i++) {
+            Fish fish = allFish.get(i);
+            if (fish instanceof HerbivorousFish && !fish.isDead()) {
+                fish.move(this);
             }
         }
     }
@@ -104,7 +113,17 @@ public class Grid {
     public int getHeight() {
         return height;
     }
-    public ArrayList<Fish> getFishList() {
-        return (ArrayList<Fish>) allFish;
+
+    public List<Fish> getFishList() {
+        List<Fish> list = new ArrayList<>();
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                Cell cell = cells[i][j];
+                if (!cell.isEmpty() && !cell.getFish().isDead()) {
+                    list.add(cell.getFish());
+                }
+            }
+        }
+        return list;
     }
 }

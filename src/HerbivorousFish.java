@@ -7,33 +7,40 @@ public class HerbivorousFish extends Fish {
 
     @Override
     public void move(Grid grid){
+
         Cell currentCell = grid.getCell(getX(), getY());
-        Cell freePlanktonCells= freePlanktonCells(currentCell, grid);
-        Cell predatorCell = detectCarnivor(grid, currentCell);
-        if (predatorCell != null) {
-            runAway(grid, predatorCell, currentCell);
+
+        Cell partner = getParentCell(grid, currentCell);
+
+        if (partner != null && Math.random() < 0.5) {
+            reproduce(currentCell, partner, grid);
             increaseAge();
             decreaseEnergy(1);
-        } else {
-            if (freePlanktonCells != null) {
-                Cell target = freePlanktonCells;
-                currentCell.setFish(null);
-                moveTo(target);
-                eatPlankton(target);
-                decreaseEnergy(1);
-                increaseAge();
-                return;
-            }
+            return;
+        }
 
-            Cell partner = getParentCell(grid, currentCell);
-            if (partner != null && canReproduce()) {
-                reproduce(currentCell, partner, grid);
-            }
-
+        Cell predatorCell = detectCarnivor(grid, currentCell);
+        if (predatorCell != null) {
+            currentCell.setFish(null);
             moveRandomly(grid);
             increaseAge();
             decreaseEnergy(1);
+            return;
         }
+
+        Cell food = freePlanktonCells(currentCell, grid);
+        if (food != null) {
+            currentCell.setFish(null);
+            moveTo(food);
+            eatPlankton(food);
+            decreaseEnergy(1);
+            increaseAge();
+            return;
+        }
+
+        moveRandomly(grid);
+        increaseAge();
+        decreaseEnergy(1);
     }
     @Override
     public void eat(Cell cell, Grid grid) {
@@ -43,6 +50,7 @@ public class HerbivorousFish extends Fish {
     }
     @Override
     public void reproduce(Cell fish1, Cell fish2, Grid grid) {
+        System.out.println("Wywołano reproduce() dla: " + this.getClass().getSimpleName());
         if(fish1.getFish() instanceof HerbivorousFish && fish2.getFish() instanceof HerbivorousFish){
             Fish parent1 = fish1.getFish();
             Fish parent2 = fish2.getFish();
@@ -50,15 +58,19 @@ public class HerbivorousFish extends Fish {
             if(parent1.canReproduce() && parent2.canReproduce()){
                 Cell freeCell = grid.findEmptyNeighborCell(fish1.getX(), fish1.getY());
                 if (freeCell != null) {
-                    int babyEnergy = parent1.getEnergy() / 2;
                     int maxEnergy = parent1.getMaxEnergy();
                     int maxAge = parent1.getMaxAge();
 
-                    HerbivorousFish baby = new HerbivorousFish(freeCell.getX(), freeCell.getY(), babyEnergy, maxEnergy, maxAge);
+                    HerbivorousFish baby = new HerbivorousFish(freeCell.getX(), freeCell.getY(), maxEnergy, maxEnergy, maxAge);
                     grid.placeFish(baby);
 
                     parent1.reduceEnergyForReproduce();
                     parent2.reduceEnergyForReproduce();
+
+                    if (!parent1.hasReproduced() && !parent2.hasReproduced()) {
+                        parent1.setReproduced(true);
+                        parent2.setReproduced(true);
+                    }
                 }
             }
         }
@@ -75,26 +87,5 @@ public class HerbivorousFish extends Fish {
             }
         }
         return null;
-    }
-    public Cell runAway(Grid grid, Cell hunter,Cell prey) {
-        int m = 0;
-        int n = 0;
-        if(hunter.getX()<prey.getX()){
-            m = 1;
-        }else if(hunter.getX()>prey.getX()){
-            m = -1;
-        }
-        if(hunter.getY()>prey.getY()){
-            n = -1;
-        }else if(hunter.getY()<prey.getY()){
-            n = 1;
-        }
-        int NewX = prey.getX()+m;
-        int NewY = prey.getY()+n;
-        Cell newCell = grid.getCell(NewX, NewY);
-        if (newCell == null || !newCell.isEmpty()) {
-            return grid.getCell(prey.getX(), prey.getY());
-        }
-        return newCell;
     }
 }

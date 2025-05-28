@@ -15,7 +15,7 @@ public class Plankton {
         return energy <=0;
     }
     public void consume(int amount){
-        if(amount < energy){
+        if(amount <= energy){
             energy -= amount;
         }else{
             energy = 0;

@@ -9,6 +9,7 @@ public abstract class Fish{
     private int maxEnergy;
     private int age;
     private int maxAge;
+    private boolean reproducedThisTurn = false;
 
     public Fish(int x, int y, int energy, int maxEnergy, int maxAge) {
         this.x = x;
@@ -17,14 +18,21 @@ public abstract class Fish{
         this.maxEnergy = maxEnergy;
         this.maxAge = maxAge;
         this.age = 1;
-        this.reproduce = null;
     }
 
+    public boolean hasReproduced() {
+        return reproducedThisTurn;
+    }
 
-    public void moveTo(Cell cell){
-        this.x = cell.getX();
-        this.y = cell.getY();
-        cell.setFish(this);
+    public void setReproduced(boolean value) {
+        this.reproducedThisTurn = value;
+    }
+    public void moveTo(Cell cell) {
+        if (cell.isEmpty()) {
+            this.x = cell.getX();
+            this.y = cell.getY();
+            cell.setFish(this);
+        }
     }
     public void moveRandomly(Grid grid){
         Cell curCell = grid.getCell(this.x, this.y);
@@ -48,15 +56,19 @@ public abstract class Fish{
         energy = Math.min(maxEnergy, energy + amount);
     }
     public void eatPlankton(Cell cell) {
-            int planktonEnergy = cell.getPlankton().getEnergy();
-            cell.getPlankton().consume(planktonEnergy);
-            increaseEnergy(planktonEnergy);
-            if(cell.getPlankton().isDepleted()){
-                cell.setPlankton(null);
-            }
+        int planktonEnergy = cell.getPlankton().getEnergy();
+        cell.getPlankton().consume(planktonEnergy);
+        increaseEnergy(planktonEnergy);
+        if (cell.getPlankton().isDepleted()) {
+            cell.setPlankton(null);
+        }
+
+        this.x = cell.getX();
+        this.y = cell.getY();
+        cell.setFish(this);
     }
-    public boolean canEatC(Cell cell,Grid grid){
-        List<Cell> NeigbourCells = grid.getAdjacentCells(cell.getX(), cell.getY());
+    public boolean isCarnivorous(Cell cell,Grid grid){
+        List<Cell> NeigbourCells = cell.neigbourCell(cell,grid);
         for (int i = 0; i < NeigbourCells.size(); i++) {
             Cell curCell = NeigbourCells.get(i);
             if (!curCell.isEmpty() && curCell.getFish() instanceof HerbivorousFish && !curCell.getFish().isDead()){
@@ -103,14 +115,14 @@ public abstract class Fish{
 
 
     public boolean canReproduce(){
-        return energy > maxEnergy/2 && age > 10;
+        return energy > 10 && age > 5;
     }
     public void reduceEnergyForReproduce(){
         energy/=2;
     }
     public abstract void reproduce(Cell fish1, Cell fish2, Grid grid);
     public void increaseAge(){
-        age+=0.5;
+        age+=1;
     }
     public void decreaseEnergy(int amount){
         energy-=amount;

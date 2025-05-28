@@ -8,31 +8,40 @@ public class CarnivorousFish extends Fish {
     @Override
     public void move(Grid grid){
         Cell currentCell = grid.getCell(getX(), getY());
-        Cell preyCell= detectHerbivorous(grid, currentCell);
-        Cell partner = getParentCell(grid, currentCell);
+        Cell preyCell = detectHerbivorous(grid, currentCell);
+
         if (preyCell != null) {
-            if(canEatC(currentCell,grid) && Math.random() < 0.5){
-                decreaseEnergy(10);
-                eat(preyCell,grid);
-                increaseAge();
-            }
-            goCloser(grid,currentCell,preyCell);
+            eat(preyCell, grid);
+            preyCell.setFish(null);
+            currentCell.setFish(null);
+            moveTo(preyCell);
             increaseAge();
-            decreaseEnergy(2);
+            decreaseEnergy(10);
+            System.out.println("Drapieżnik zjada rybę na (" + preyCell.getX() + "," + preyCell.getY() + ")");
+            return;
         }
-        if(partner!=null && canReproduce()){
-            reproduce(currentCell, partner, grid);
+
+        Cell closestPrey = detectCarnivor(grid, currentCell);
+        if (closestPrey != null) {
+            Cell nextStep = goCloser(grid, currentCell, closestPrey);
+            if (nextStep != null) {
+                System.out.println("Drapieżnik idzie bliżej na "+closestPrey.getX() + "," + closestPrey.getY());
+                increaseAge();
+                decreaseEnergy(1);
+                return;
+            }
         }
+
         moveRandomly(grid);
         increaseAge();
-        decreaseEnergy(2);
-
+        decreaseEnergy(1);
     }
 
     @Override
-    public void eat(Cell cell,Grid grid) {
-        if(canEatC(cell,grid) && !cell.getFish().isDead()){
-            eatFish(cell.getFish(),cell);
+    public void eat(Cell cell, Grid grid) {
+        Fish prey = cell.getFish();
+        if (prey instanceof HerbivorousFish && !prey.isDead()) {
+            eatFish(prey, cell);
         }
     }
 
@@ -88,11 +97,11 @@ public class CarnivorousFish extends Fish {
         int NewX = hunter.getX()+m;
         int NewY = hunter.getY()+n;
         Cell newCell = grid.getCell(NewX, NewY);
-        if (newCell == null || !newCell.isEmpty()) {
-            return grid.getCell(prey.getX(), prey.getY());
+        if (newCell != null && newCell.isEmpty()) {
+            hunter.setFish(null);
+            moveTo(newCell);
+            return newCell;
         }
-        hunter.setFish(null);
-        moveTo(newCell);
-        return newCell;
+        return null;
     }
 }
