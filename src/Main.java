@@ -19,5 +19,9 @@ public class Main {
             System.out.println("=== Tura " + (n + 1) + " ===");
             simulation.RunTurn();
         }
+        SwingUtilities.invokeLater(() -> {
+            LakeGUI gui = new LakeGUI(simulation);
+            gui.setVisible(true);
+        });
     }
 }
