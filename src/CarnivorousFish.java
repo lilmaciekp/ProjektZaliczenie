@@ -9,32 +9,30 @@ public class CarnivorousFish extends Fish {
     public void move(Grid grid){
         Cell currentCell = grid.getCell(getX(), getY());
         Cell preyCell = detectHerbivorous(grid, currentCell);
+        Cell partner = getParentCell(grid, currentCell);
 
         if (preyCell != null) {
             eat(preyCell, grid);
-            preyCell.setFish(null);
             currentCell.setFish(null);
             moveTo(preyCell);
-            increaseAge();
-            decreaseEnergy(10);
             System.out.println("Drapieżnik zjada rybę na (" + preyCell.getX() + "," + preyCell.getY() + ")");
             return;
         }
-
+        if (partner != null) {
+            reproduce(currentCell, partner, grid);
+            return;
+        }
         Cell closestPrey = detectCarnivor(grid, currentCell);
         if (closestPrey != null) {
             Cell nextStep = goCloser(grid, currentCell, closestPrey);
             if (nextStep != null) {
                 System.out.println("Drapieżnik idzie bliżej na "+closestPrey.getX() + "," + closestPrey.getY());
-                increaseAge();
-                decreaseEnergy(1);
                 return;
             }
         }
 
         moveRandomly(grid);
         increaseAge();
-        decreaseEnergy(1);
     }
 
     @Override
@@ -47,28 +45,31 @@ public class CarnivorousFish extends Fish {
 
     @Override
     public void reproduce(Cell fish1, Cell fish2, Grid grid) {
-        if(fish1.getFish() instanceof CarnivorousFish && fish2.getFish() instanceof CarnivorousFish){
-            Fish parent1 = fish1.getFish();
-            Fish parent2 = fish2.getFish();
+            if (fish1.getFish() instanceof CarnivorousFish && fish2.getFish() instanceof CarnivorousFish) {
+                Fish parent1 = fish1.getFish();
+                Fish parent2 = fish2.getFish();
 
-            if(parent1.canReproduce() && parent2.canReproduce()){
-                Cell freeCell = grid.findEmptyNeighborCell(fish1.getX(), fish1.getY());
-                if (freeCell != null) {
-                    int babyEnergy = parent1.getEnergy() / 2;
-                    int maxEnergy = parent1.getMaxEnergy();
-                    int maxAge = parent1.getMaxAge();
+                if (parent1.canReproduce() && parent2.canReproduce()) {
+                    Cell freeCell = grid.findEmptyNeighborCell(fish1.getX(), fish1.getY());
+                    if (freeCell != null) {
+                        int babyEnergy = parent1.getEnergy() / 2;
+                        int maxEnergy = parent1.getMaxEnergy();
+                        int maxAge = parent1.getMaxAge();
 
-                    CarnivorousFish baby = new CarnivorousFish(freeCell.getX(), freeCell.getY(), babyEnergy, maxEnergy, maxAge);
-                    grid.placeFish(baby);
+                        CarnivorousFish baby = new CarnivorousFish(freeCell.getX(), freeCell.getY(), babyEnergy, maxEnergy, maxAge);
+                        grid.placeFish(baby);
 
-                    parent1.reduceEnergyForReproduce();
-                    parent2.reduceEnergyForReproduce();
+                        parent1.reduceEnergyForReproduce();
+                        parent2.reduceEnergyForReproduce();
+
+                        System.out.println("Mięsożerne się rozmnożyły na (" + freeCell.getX() + "," + freeCell.getY() + ")");
+                    }
                 }
             }
-        }
     }
 
-    public Cell getParentCell(Grid grid, Cell currentCell) {
+
+        public Cell getParentCell(Grid grid, Cell currentCell) {
         List<Cell> neighbors = grid.getAdjacentCells(currentCell.getX(), currentCell.getY());
         for (int i = 0; i < neighbors.size(); i++) {
             Cell curr = neighbors.get(i);

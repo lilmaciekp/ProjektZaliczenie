@@ -1,27 +1,36 @@
 import javax.swing.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
     public static void main(String[] args) {
-        Simulation simulation = new Simulation(20, 20, 20, 0.3);
-        Grid grid = simulation.getGrid();
-
-        grid.placeFish(new HerbivorousFish(2, 3, 50, 100, 25));
-        grid.placeFish(new HerbivorousFish(2, 4, 50, 100, 25));
-        grid.placeFish(new HerbivorousFish(2, 5, 50, 100, 25));
-
-
-        grid.placeFish(new CarnivorousFish(3, 4, 60, 200, 50));
-        grid.placeFish(new CarnivorousFish(3, 5, 52, 200, 50));
-
-
-        for (int n = 0; n < 5; n++) {
-            System.out.println("=== Tura " + (n + 1) + " ===");
-            simulation.RunTurn();
-        }
         SwingUtilities.invokeLater(() -> {
-            LakeGUI gui = new LakeGUI(simulation);
-            gui.setVisible(true);
+            DataSelector dialog = new DataSelector(null);
+            dialog.setVisible(true);
+
+            if (dialog.isConfirmed()) {
+                int herbivores = dialog.getHerbivores();
+                int carnivores = dialog.getCarnivores();
+                int width = dialog.getWidthValue();
+                int height = dialog.getHeightValue();
+
+                Simulation simulation = new Simulation(width, height, 100, 0.3); // zakładam, że 0.3 to np. szansa na pojawienie się glonów
+                Grid grid = simulation.getGrid();
+
+                for (int i = 0; i < herbivores; i++) {
+                    int x = (int)(Math.random() * width);
+                    int y = (int)(Math.random() * height);
+                    grid.placeFish(new HerbivorousFish(x, y, 100, 500, 100));
+                }
+
+                for (int i = 0; i < carnivores; i++) {
+                    int x = (int)(Math.random() * width);
+                    int y = (int)(Math.random() * height);
+                    grid.placeFish(new CarnivorousFish(x, y, 100, 500, 100));
+                }
+
+                LakeGUI gui = new LakeGUI(simulation);
+                gui.setVisible(true);
+            }
         });
     }
 }
+

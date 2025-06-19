@@ -7,6 +7,8 @@ public class Grid {
     private int width;
     private int height;
     private List<Fish> allFish;
+    private List<Fish> Herbivorous;
+    private List<Fish> Carnivorous;
 
     public Grid(int width, int height, int planktonMaxEnergy, double planktonProbability) {
         this.width = width;
@@ -24,6 +26,8 @@ public class Grid {
             }
         }
         this.allFish = new ArrayList<>();
+        this.Carnivorous = new ArrayList<>();
+        this.Herbivorous = new ArrayList<>();
     }
     public void gatherFish() {
         allFish.clear();
@@ -36,6 +40,34 @@ public class Grid {
             }
         }
     }
+    public List<Fish> gatherFishCarnivous() {
+        if (Carnivorous != null) {
+            Carnivorous.clear();
+        }
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                Cell cell = cells[i][j];
+                if (!cell.isEmpty() && !cell.getFish().isDead() && cell.getFish() instanceof CarnivorousFish) {
+                    Carnivorous.add(cell.getFish());
+                }
+            }
+        }
+        return Carnivorous;
+    }
+    public List<Fish> gatherFishHerbivorous() {
+        if (Herbivorous != null){
+            Herbivorous.clear();
+        }
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                Cell cell = cells[i][j];
+                if (!cell.isEmpty() && !cell.getFish().isDead() && cell.getFish() instanceof HerbivorousFish) {
+                    Herbivorous.add(cell.getFish());
+                }
+            }
+        }
+        return Herbivorous;
+    }
 
     public void placeFish(Fish fish) {
         Cell cell = getCell(fish.getX(), fish.getY());
@@ -45,21 +77,22 @@ public class Grid {
     }
 
     public void moveFish() {
-        List<Fish> allFish = getFishList();
+        List<Fish> CarnivorousFish = gatherFishCarnivous();
+        List<Fish> HerbivorousFish = gatherFishHerbivorous();
 
-        for (int i = 0; i < allFish.size(); i++) {
-            Fish fish = allFish.get(i);
-            if (fish instanceof CarnivorousFish && !fish.isDead()) {
+        for(int i = 0; i < CarnivorousFish.size(); i++) {
+            Fish fish = CarnivorousFish.get(i);
+            if(!fish.isDead()){
+                fish.move(this);
+            }
+        }
+        for(int i = 0; i < HerbivorousFish.size(); i++) {
+            Fish fish = HerbivorousFish.get(i);
+            if(!fish.isDead()){
                 fish.move(this);
             }
         }
 
-        for (int i = 0; i < allFish.size(); i++) {
-            Fish fish = allFish.get(i);
-            if (fish instanceof HerbivorousFish && !fish.isDead()) {
-                fish.move(this);
-            }
-        }
     }
     public Cell getCell(int x, int y) {
         if (isValid(x, y)) {
@@ -126,4 +159,5 @@ public class Grid {
         }
         return list;
     }
+
 }

@@ -12,7 +12,7 @@ public class HerbivorousFish extends Fish {
 
         Cell partner = getParentCell(grid, currentCell);
 
-        if (partner != null && Math.random() < 0.5) {
+        if (partner != null && Math.random() < 0.7) {
             reproduce(currentCell, partner, grid);
             increaseAge();
             decreaseEnergy(1);
@@ -50,12 +50,13 @@ public class HerbivorousFish extends Fish {
     }
     @Override
     public void reproduce(Cell fish1, Cell fish2, Grid grid) {
-        System.out.println("Wywołano reproduce() dla: " + this.getClass().getSimpleName());
+
         if(fish1.getFish() instanceof HerbivorousFish && fish2.getFish() instanceof HerbivorousFish){
             Fish parent1 = fish1.getFish();
             Fish parent2 = fish2.getFish();
 
             if(parent1.canReproduce() && parent2.canReproduce()){
+                System.out.println("Ryby na : ("+fish1.getX()+","+fish1.getY()+") i ("+fish2.getX()+","+fish2.getY()+") " + this.getClass().getSimpleName()+" rozmznożyły się");
                 Cell freeCell = grid.findEmptyNeighborCell(fish1.getX(), fish1.getY());
                 if (freeCell != null) {
                     int maxEnergy = parent1.getMaxEnergy();
@@ -63,7 +64,7 @@ public class HerbivorousFish extends Fish {
 
                     HerbivorousFish baby = new HerbivorousFish(freeCell.getX(), freeCell.getY(), maxEnergy, maxEnergy, maxAge);
                     grid.placeFish(baby);
-
+                    System.out.println("Dziecko na: ("+baby.getX()+","+baby.getY()+")");
                     parent1.reduceEnergyForReproduce();
                     parent2.reduceEnergyForReproduce();
 

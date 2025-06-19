@@ -118,7 +118,7 @@ public abstract class Fish{
         return energy > 10 && age > 5;
     }
     public void reduceEnergyForReproduce(){
-        energy/=2;
+        energy/=4;
     }
     public abstract void reproduce(Cell fish1, Cell fish2, Grid grid);
     public void increaseAge(){

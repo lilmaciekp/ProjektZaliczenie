@@ -1,21 +1,16 @@
 import java.util.List;
+import org.jfree.chart.JFreeChart;
 
 public class Statistic {
     private int totalHerbivorous = 0;
     private int totalCarnivorous = 0;
     private int totalPlankton=0;
     private int totalFish=0;
-    public void countEverything(Grid grid, List<Fish> allFish) {
-        totalFish = 0;
-        totalHerbivorous = 0;
-        totalCarnivorous = 0;
+    public void countEverything(Grid grid, List<Fish> allFish, List<Fish> allCarnivorous, List<Fish> allHerbivorous) {
+        totalFish = allFish.size();
+        totalHerbivorous = allHerbivorous.size();
+        totalCarnivorous = allCarnivorous.size();
         totalPlankton = 0;
-
-        for (Fish fish : allFish) {
-            totalFish++;
-            if (fish instanceof HerbivorousFish) totalHerbivorous++;
-            if (fish instanceof CarnivorousFish) totalCarnivorous++;
-        }
 
         for (int i = 0; i < grid.getWidth(); i++) {
             for (int j = 0; j < grid.getHeight(); j++) {
